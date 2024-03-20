@@ -70,6 +70,20 @@ app.post('/api/form', (req, res) => {
 app.get('/leadership',(req, res)=>{
   res.send(t)
 })
+
+app.post('/verify', async (request, response) => {
+  const { recaptchaValue } = request.body;
+  console.log(recaptchaValue);
+  try {
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=6LcRJZspAAAAAKCunF2KyUxnVnak7R3NZymrbjyl&response=${recaptchaValue}`;
+    const fetchResponse = await fetch(url, { method: 'POST' });
+    const data = await fetchResponse.json();
+    response.send(data);
+  } catch (error) {
+    console.error('Error occurred during reCAPTCHA verification:', error);
+    response.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
