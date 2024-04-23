@@ -1,7 +1,8 @@
 const { MongoClient } = require('mongodb')
 require("dotenv").config()
 
-const uri = process.env.MONGO_CONNECTION_STRING;
+// const uri = process.env.MONGO_CONNECTION_STRING;
+const uri = 'mongodb+srv://usamarajpoot3450:a7IaxSzT6dvv4h0S@cluster0.i6jkf57.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(uri);
 
 let db;
