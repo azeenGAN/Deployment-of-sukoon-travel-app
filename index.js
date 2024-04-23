@@ -1,10 +1,27 @@
 const express = require('express')
 const path = require('path');
+const { connectToMongoDB, closeConnection, getDatabase } = require('./db');
+
 //  const cors = require('cors');
 
 
 const app = express()
 const port = process.env.PORT || 8080
+
+let db
+basename='sukoon01'
+async function dbConnection() {
+  try {
+    await connectToMongoDB(basename);
+    db = await getDatabase();
+    app.listen(port, () => {
+      console.log(`App listening on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Error establishing MongoDB connection:", error);
+  }
+}
+dbConnection();
 
 
 let q;
@@ -63,7 +80,8 @@ app.use('/api/form', (req, res, next) => {
 // Your API endpoint
 app.post('/api/form', (req, res) => {
   res.send(`Mr ${req.body.last_name}, your information has been received. Our staff member will reach out to you.`);
-  console.log(req.body);
+//sending customer data to database
+db.collection('bookings').insertOne(req.body)
 });
 
 app.get('/leadership',(req, res)=>{
@@ -72,7 +90,7 @@ app.get('/leadership',(req, res)=>{
 
 app.post('/verify', async (request, response) => {
   const { recaptchaValue } = request.body;
-  console.log(recaptchaValue);
+  
   try {
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=6LcRJZspAAAAAKCunF2KyUxnVnak7R3NZymrbjyl&response=${recaptchaValue}`;
     const fetchResponse = await fetch(url, { method: 'POST' });
@@ -94,6 +112,7 @@ app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+process.on('SIGINT', async () => {
+  await closeConnection();
+  process.exit();
 });
