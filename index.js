@@ -14,7 +14,9 @@ async function dbConnection() {
   try {
     await connectToMongoDB(basename);
     db = await getDatabase();
-    
+    app.listen(port, () => {
+      console.log(`App listening on port ${port}`);
+    });
   } catch (error) {
     console.error("Error establishing MongoDB connection:", error);
   }
@@ -113,7 +115,4 @@ app.get('/*', function (req, res) {
 process.on('SIGINT', async () => {
   await closeConnection();
   process.exit();
-});
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
 });
